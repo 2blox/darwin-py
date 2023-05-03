@@ -1,9 +1,11 @@
+import os
+import shutil
 from pathlib import Path
-from typing import Iterator, List
+from typing import Iterator, List, Iterable
 
 from darwin.datatypes import AnnotationFile, ExportParser, PathLike
 from darwin.utils import parse_darwin_json, split_video_annotation
-
+import darwin.datatypes as dt
 
 def darwin_to_dt_gen(file_paths: List[PathLike], split_sequences: bool) -> Iterator[AnnotationFile]:
     """
@@ -64,3 +66,25 @@ def export_annotations(
         Path(output_directory),
     )
     print(f"Converted annotations saved at {output_directory}")
+    copy_all_images(
+        file_paths,
+        darwin_to_dt_gen(file_paths, split_sequences=split_sequences),
+        Path(output_directory),
+    )
+    print(f"Image files copied at {output_directory}")
+
+def copy_all_images(file_paths: List[PathLike], annotation_files: Iterable[dt.AnnotationFile], output_dir: Path) -> None:
+    for annotation_file in annotation_files:
+        _copy_image(file_paths, annotation_file, output_dir)
+
+
+def _copy_image(file_paths: List[PathLike], annotation_file: dt.AnnotationFile, output_dir: Path, ) -> None:
+    remote_path = "train"
+    if annotation_file.remote_path and annotation_file.remote_path in ['/train', '/valid', '/test']:
+        remote_path = annotation_file.remote_path.replace("/", "")
+    path = Path(file_paths[0])
+    target_dir = (output_dir / remote_path / "images")
+
+    output_file_path = (target_dir / annotation_file.filename)
+    output_file_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2((path / "images" / annotation_file.filename), output_file_path)

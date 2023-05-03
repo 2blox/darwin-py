@@ -166,6 +166,12 @@ environment.yml
 test_output_*
 
 
+
 !tests/darwin/data/*.png
 # scripts
 test.py
+
+darwin/datasets/2blox/
+.idea/
+*.iml
+

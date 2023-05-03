@@ -847,6 +847,7 @@ def split_video_annotation(annotation: dt.AnnotationFile) -> List[dt.AnnotationF
                 annotation.seq,
                 item_id=annotation.item_id,
                 slots=annotation.slots,
+                remote_path=annotation.remote_path
             )
         )
     return frame_annotations
